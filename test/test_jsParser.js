@@ -568,3 +568,109 @@ describe('Rel_opVisitor', function () {
     });
 });
 // test/Rel_opVisitor.test.js
+
+const assert = require('assert');
+const PrimaryVisitor = require('../PrimaryVisitor');
+
+describe('PrimaryVisitor', () => {
+  it('should return text from literal', () => {
+    const ctx = {
+      literal: () => ({ getText: () => '42' }),
+      name: () => null
+    };
+
+    const visitor = new PrimaryVisitor();
+    const result = visitor.visitPrimary(ctx);
+    assert.strictEqual(result, '42');
+  });
+
+  it('should return text from name if literal is absent', () => {
+    const ctx = {
+      literal: () => null,
+      name: () => ({ getText: () => 'x' })
+    };
+
+    const visitor = new PrimaryVisitor();
+    const result = visitor.visitPrimary(ctx);
+    assert.strictEqual(result, 'x');
+  });
+
+  it('should return null if neither literal nor name is present', () => {
+    const ctx = {
+      literal: () => null,
+      name: () => null
+    };
+
+    const visitor = new PrimaryVisitor();
+    const result = visitor.visitPrimary(ctx);
+    assert.strictEqual(result, null);
+  });
+});
+// test/PrimaryVisitor.test.js
+
+const assert = require('assert');
+const OutputExpressionListVisitor = require('../Output_expression_listVisitor');
+
+describe('Output_expression_listVisitor', () => {
+  it('should return array of expression texts', () => {
+    const ctx = {
+      output_expression: () => [
+        { getText: () => 'a' },
+        { getText: () => 'b' }
+      ]
+    };
+
+    const visitor = new OutputExpressionListVisitor();
+    const result = visitor.visitOutput_expression_list(ctx);
+    assert.deepStrictEqual(result, ['a', 'b']);
+  });
+
+  it('should return empty array if no expressions', () => {
+    const ctx = {
+      output_expression: () => []
+    };
+
+    const visitor = new OutputExpressionListVisitor();
+    const result = visitor.visitOutput_expression_list(ctx);
+    assert.deepStrictEqual(result, []);
+  });
+
+  it('should return empty array if output_expression is undefined', () => {
+    const ctx = {
+      output_expression: () => undefined
+    };
+
+    const visitor = new OutputExpressionListVisitor();
+    const result = visitor.visitOutput_expression_list(ctx);
+    assert.deepStrictEqual(result, []);
+  });
+});
+// test/Output_expression_listVisitor.test.js
+
+const assert = require('assert');
+const NameVisitor = require('../NameVisitor');
+
+describe('NameVisitor', () => {
+  it('should return text from Identifier', () => {
+    const ctx = {
+      Identifier: () => ({
+        getText: () => 'myVar'
+      })
+    };
+
+    const visitor = new NameVisitor();
+    const result = visitor.visitName(ctx);
+    assert.strictEqual(result, 'myVar');
+  });
+
+  it('should return null if Identifier is not present', () => {
+    const ctx = {
+      Identifier: () => null
+    };
+
+    const visitor = new NameVisitor();
+    const result = visitor.visitName(ctx);
+    assert.strictEqual(result, null);
+  });
+});
+// test/NameVisitor.test.js
