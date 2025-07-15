@@ -28,58 +28,66 @@ as.deepEqual(actualOutput.loop_statements, ReferenceOutput.loop_statements, 'exp
 } ) 
 // test for While_statements.js
 
-const { expect } = require('chai');
-const sinon = require('sinon');
-
-const { When_statementVisitor } = require('../path/to/When_statementVisitor');
+const { When_statementVisitor } = require('../jsParser/parser/When_statementVisitor');
+const { ExpressionVisitor } = require('../jsParser/parser/ExpressionVisitor');
+const { StatementVisitor } = require('../jsParser/parser/StatementVisitor.js');
+const { When_statement } = require('../jsParser/parser/domain/When_statement');
+const { When_elsewhen_statement } = require('../jsParser/parser/domain/When_elsewhen_statement');
 
 describe('When_statementVisitor', () => {
   let visitor;
 
   beforeEach(() => {
     visitor = new When_statementVisitor();
+    visitor.expressionVisitor = new ExpressionVisitor();
+
+    visitor.statementVisitor = new StatementVisitor();
   });
 
-  it('should return a When_statement with correct structure from mock ctx', () => {
-    const mockExpr = 'condition_expr';
-    const mockStmt = 'then_stmt';
-
+  it('should return a When_statement with correct structure using real dependencies', () => {
     const ctx = {
       expression: () => [{}, {}],
       statement: () => [{}, {}],
       getChildCount: () => 10,
       getChild: (i) => ({
-        getText: () => (i === 0 ? 'when' : i === 5 ? 'elsewhen' : 'dummy'),
+        getText: () => {
+          if (i === 0) return 'when';
+          if (i === 5) return 'elsewhen';
+          return 'other';
+        }
       })
     };
 
-    const ExpressionVisitor = require('../path/to/ExpressionVisitor');
-    const StatementVisitor = require('../path/to/statementVisitor');
-    const When_statement = require('../path/to/domain/When_statement').When_statement;
-    const When_elsewhen_statement = require('../path/to/domain/When_elsewhen_statement').When_elsewhen_statement;
+    const exprSpy = sinon.spy(visitor.expressionVisitor, 'visitExpression');
+    const stmtSpy = sinon.spy(visitor.statementVisitor, 'visitStatement');
 
-    sinon.stub(ExpressionVisitor.prototype, 'visitExpression').returns(mockExpr);
-    sinon.stub(StatementVisitor.prototype, 'visitStatement').returns(mockStmt);
-    const whenStmtStub = sinon.stub().returns({ type: 'when_statement_object' });
-    const elsewhenStub = sinon.stub().returns({ condition: mockExpr, then: [mockStmt] });
+    visitor.expressionVisitor.visitExpression = (ctx) => ctx.getText();
+    visitor.statementVisitor.visitStatement = (ctx) => ctx.getText();
 
-    sinon.replace(require('../path/to/domain/When_statement'), 'When_statement', whenStmtStub);
-    sinon.replace(require('../path/to/domain/When_elsewhen_statement'), 'When_elsewhen_statement', elsewhenStub);
     const result = visitor.visitWhen_statement(ctx);
 
-    expect(whenStmtStub.calledOnce).to.be.true;
-    expect(elsewhenStub.called).to.be.true;
-    expect(result).to.deep.equal({ type: 'when_statement_object' });
+    assert.ok(result instanceof When_statement);
+    assert.strictEqual(result.condition, 'a > 0');
+    assert.deepStrictEqual(result.then, ['doA();']);
 
-    sinon.restore();
+    assert.strictEqual(result.elsewhens.length, 1);
+    assert.ok(result.elsewhens[0] instanceof When_elsewhen_statement);
+    assert.strictEqual(result.elsewhens[0].condition, 'b < 5');
+    assert.deepStrictEqual(result.elsewhens[0].then, ['doB();']);
+
+    assert.strictEqual(exprSpy.callCount, 2);
+    assert.strictEqual(stmtSpy.callCount, 2);
+
+    exprSpy.restore();
+    stmtSpy.restore();
   });
 });
 // test for When_statementVisitor.js
 
-const { expect } = require('chai');
+const { expect } = require('assert');
 const sinon = require('sinon');
 
-const { When_equationVisitor } = require('../path/to/When_equationVisitor');
+const { When_equationVisitor } = require('../jsParser/parser/When_equationVisitor');
 
 describe('When_equationVisitor', () => {
   let visitor;
@@ -101,18 +109,18 @@ describe('When_equationVisitor', () => {
       }),
     };
 
-    const ExpressionVisitor = require('../path/to/ExpressionVisitor');
-    const EquationVisitor = require('../path/to/EquationVisitor');
-    const When_equation = require('../path/to/domain/When_equation').When_equation;
-    const When_elsewhen_equation = require('../path/to/domain/When_elsewhen_equation').When_elsewhen_equation;
+    const ExpressionVisitor = require('../jsParser/parser/ExpressionVisitor');
+    const EquationVisitor = require('../jsParser/parser/EquationVisitor');
+    const When_equation = require('../jsParser/parser/domain/When_equation').When_equation;
+    const When_elsewhen_equation = require('../jsParser/parser/domain/When_elsewhen_equation').When_elsewhen_equation;
 
     sinon.stub(ExpressionVisitor.prototype, 'visitExpression').returns(mockExpr);
     sinon.stub(EquationVisitor.prototype, 'visitEquation').returns(mockEqn);
     const whenEqStub = sinon.stub().returns({ type: 'when_equation_object' });
     const elsewhenStub = sinon.stub().returns({ condition: mockExpr, then: [mockEqn] });
 
-    sinon.replace(require('../path/to/domain/When_equation'), 'When_equation', whenEqStub);
-    sinon.replace(require('../path/to/domain/When_elsewhen_equation'), 'When_elsewhen_equation', elsewhenStub);
+    sinon.replace(require('../jsParser/parser/domain/When_equation'), 'When_equation', whenEqStub);
+    sinon.replace(require('../jsParser/parser/domain/When_elsewhen_equation'), 'When_elsewhen_equation', elsewhenStub);
 
     const result = visitor.visitWhen_equation(ctx);
 
@@ -128,9 +136,9 @@ describe('When_equationVisitor', () => {
 const assert = require('assert');
 const sinon = require('sinon');
 
-const { Type_specifierVisitor } = require('../path/to/Type_specifierVisitor');
-const Type_specifier = require('../path/to/domain/Type_specifier');
-const NameVisitor = require('../path/to/NameVisitor');
+const { Type_specifierVisitor } = require('../jsParser/parser/Type_specifierVisitor');
+const Type_specifier = require('../jsParser/parser/domain/Type_specifier');
+const NameVisitor = require('../jsParser/parser/NameVisitor');
 
 describe('Type_specifierVisitor', () => {
   it('should return Type_specifier with name when name is present', () => {
@@ -168,7 +176,7 @@ describe('Type_specifierVisitor', () => {
 // test for Type_specifierVisitor.js
 
 const assert = require('assert');
-const { Type_prefixVisitor } = require('../path/to/Type_prefixVisitor');
+const { Type_prefixVisitor } = require('../jsParser/parser/Type_prefixVisitor');
 
 describe('Type_prefixVisitor', () => {
   function mockCtx(flags = {}) {
@@ -216,9 +224,9 @@ describe('Type_prefixVisitor', () => {
 const assert = require('assert');
 const sinon = require('sinon');
 
-const { TermVisitor } = require('../path/to/TermVisitor');
-const Term = require('../path/to/domain/Term');
-const FactorVisitor = require('../path/to/FactorVisitor');
+const { TermVisitor } = require('../jsParser/parser/TermVisitor');
+const Term = require('../jsParser/parser/domain/Term');
+const FactorVisitor = require('../jsParser/parser/FactorVisitor');
 
 describe('TermVisitor', () => {
   it('should extract mul_ops and factors correctly', () => {
@@ -358,7 +366,7 @@ describe('Stored_definitionVisitor', function () {
 // test/Stored_definitionVisitor.test.js
 
 const assert = require('assert');
-const { StatementVisitor } = require('../your-path/StatementVisitor');
+const { StatementVisitor } = require('../jsParser/StatementVisitor');
 
 describe('StatementVisitor', function () {
   it('should handle assignment statements', function () {
@@ -387,7 +395,7 @@ describe('StatementVisitor', function () {
 // test/StatementVisitor.test.js
 
 const assert = require('assert');
-const { Simple_expressionVisitor } = require('../your-path/Simple_expressionVisitor');
+const { Simple_expressionVisitor } = require('../jsParser/Simple_expressionVisitor');
 
 describe('Simple_expressionVisitor', function () {
   it('should return Simple_expression with one logical expression', function () {
@@ -400,8 +408,8 @@ describe('Simple_expressionVisitor', function () {
     };
 
   
-    const original = require.cache[require.resolve('../your-path/Logical_expressionVisitor')];
-    require.cache[require.resolve('../your-path/Logical_expressionVisitor')] = {
+    const original = require.cache[require.resolve('../jsParser/Logical_expressionVisitor')];
+    require.cache[require.resolve('../jsParser/Logical_expressionVisitor')] = {
       exports: {
         Logical_expressionVisitor: class {
           visitLogical_expression(expr) {
@@ -417,13 +425,13 @@ describe('Simple_expressionVisitor', function () {
     assert.strictEqual(result.logical_expression3, null);
 
     
-    require.cache[require.resolve('../your-path/Logical_expressionVisitor')] = original;
+    require.cache[require.resolve('../jsParser/Logical_expressionVisitor')] = original;
   });
 });
 // test/Simple_expressionVisitor.test.js
 
 const assert = require('assert');
-const { Simple_expressionVisitor } = require('../your-path/Simple_expressionVisitor');
+const { Simple_expressionVisitor } = require('../jsParser/Simple_expressionVisitor');
 
 describe('Simple_expressionVisitor', function () {
   it('should return Simple_expression with one logical expression', function () {
@@ -435,8 +443,8 @@ describe('Simple_expressionVisitor', function () {
       ]
     };
 
-    const original = require.cache[require.resolve('../your-path/Logical_expressionVisitor')];
-    require.cache[require.resolve('../your-path/Logical_expressionVisitor')] = {
+    const original = require.cache[require.resolve('../jsParser/Logical_expressionVisitor')];
+    require.cache[require.resolve('../jsParser/Logical_expressionVisitor')] = {
       exports: {
         Logical_expressionVisitor: class {
           visitLogical_expression(expr) {
@@ -451,13 +459,13 @@ describe('Simple_expressionVisitor', function () {
     assert.strictEqual(result.logical_expression2, null);
     assert.strictEqual(result.logical_expression3, null);
 
-    require.cache[require.resolve('../your-path/Logical_expressionVisitor')] = original;
+    require.cache[require.resolve('../jsParser/Logical_expressionVisitor')] = original;
   });
 });
 // test/Simple_expressionVisitor.test.js
 
 const assert = require('assert');
-const { Short_class_specifierVisitor } = require('../your-path/Short_class_specifierVisitor');
+const { Short_class_specifierVisitor } = require('../jsParser/Short_class_specifierVisitor');
 
 describe('Short_class_specifierVisitor', function () {
   it('should correctly visit and return Short_class_specifier object', function () {
