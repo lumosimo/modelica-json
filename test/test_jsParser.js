@@ -5,30 +5,36 @@ const sinon = require('sinon')
 const While_statementVisitorClass = require('../jsParser/parser/While_statementVisitor.js').While_statementVisitor
 const StatementVisitorClass = require ('../jsParser/parser/StatementVisitor.js').StatementVisitor
 const ExpressionVisitorClass = require ('../jsParser/parser/ExpressionVisitor.js').ExpressionVisitor
-const While_statementClass = require ('../jsParser/domain/While_statement.js').While_statement
-const { When_equationVisitor } = require('../jsParser/parser/When_equationVisitor');// mo.describe('testing Algorithm_sectionVisitor.js', function () {
-const { Type_specifierVisitor } = require('../jsParser/parser/Type_specifierVisitor');
-const Type_specifier = require('../jsParser/parser/domain/Type_specifier');
-const NameVisitor = require('../jsParser/parser/NameVisitor');
-const { When_statementVisitor } = require('../jsParser/parser/When_statementVisitor');
+const While_statementClass = require ('../jsParser/parser/While_statementVisitor.js').While_statement
+const { When_equationVisitor } = require('../jsParser/parser/When_equationVisitor.js');// mo.describe('testing Algorithm_sectionVisitor.js', function () {
+const { Type_specifierVisitor } = require('../jsParser/parser/Type_specifierVisitor.js');
+const Type_specifier = require('../jsParser/parser/Type_specifierVisitor.js');
+const NameVisitor = require('../jsParser/parser/NameVisitor.js');
+const { When_statementVisitor } = require('../jsParser/parser/When_statementVisitor.js');
 const { StatementVisitor } = require('../jsParser/parser/StatementVisitor.js'); 
-const { When_statement } = require('../jsParser/parser/domain/When_statement');
-const { When_elsewhen_statement } = require('../jsParser/parser/domain/When_elsewhen_statement');
-const EquationVisitor = require('../jsParser/parser/EquationVisitor');
-const When_equation = require('../jsParser/parser/domain/When_equation').When_equation;
-const When_elsewhen_equation = require('../jsParser/parser/domain/When_elsewhen_equation').When_elsewhen_equation;
-const TermVisitor = require('../jsParser/parser/TermVisitor');
-const Type_prefixVisitor  = require('../jsParser/parser/Type_prefixVisitor');;
-const Term = require('../jsParser/parser/domain/Term');
-const FactorVisitor = require('../jsParser/parser/FactorVisitor');
-const SubscriptVisitor  = require('../SubscriptVisitor');
-const String_commentVisitor = require('../String_commentVisitor');
-const Stored_definitionVisitor  = require('../Stored_definitionVisitor');
-const Simple_expressionVisitor = require('../jsParser/Simple_expressionVisitor');
-const Short_class_specifierVisitor = require('../jsParser/Short_class_specifierVisitor');
-const PrimaryVisitor = require('../PrimaryVisitor');
-const OutputExpressionListVisitor = require('../Output_expression_listVisitor');
-const Rel_opVisitor = require('../Rel_opVisitor');
+const { When_statement } = require('../jsParser/parser/When_statementVisitor.js');
+const EquationVisitor = require('../jsParser/parser/EquationVisitor.js');
+const When_equation = require('../jsParser/parser/When_equationVisitor.js').When_equation;
+const TermVisitor = require('../jsParser/parser/TermVisitor.js');
+const Type_prefixVisitor  = require('../jsParser/parser/Type_prefixVisitor.js');;
+const FactorVisitor = require('../jsParser/parser/FactorVisitor.js');
+const SubscriptVisitor  = require('../jsParser/parser/SubscriptVisitor.js');
+const String_commentVisitor = require('../jsParser/parser/String_commentVisitor.js');
+const Stored_definitionVisitor  = require('../jsParser/parser/Stored_definitionVisitor.js');
+const Simple_expressionVisitor = require('../jsParser/parser/Simple_expressionVisitor.js');
+const Short_class_specifierVisitor = require('../jsParser/parser/Short_class_specifierVisitor.js');
+const PrimaryVisitor = require('../jsParser/parser/PrimaryVisitor.js');
+const Output_expression_listVisitor = require('../jsParser/parser/Output_expression_listVisitor.js');
+const Rel_opVisitor = require('../jsParser/parser/Rel_opVisitor.js');
+const Named_argumentVisitor = require('../jsParser/parser/Named_argumentVisitor.js');
+const Named_argumentsVisitor = require('../jsParser/parser/Named_argumentsVisitor.js');
+const ModificationVisitor = require('../jsParser/parser/ModificationVisitor.js');
+const Long_class_specifierVisitor = require('../jsParser/parser/Long_class_specifierVisitor.js');
+const Logical_termVisitor = require('../jsParser/parser/Logical_termVisitor.js');
+const Logical_factorVisitor = require('../jsParser/parser/Logical_factorVisitor.js');
+const { Logical_expressionVisitor } = require('../jsParser/parser/Logical_expressionVisitor.js');
+const { Import_listVisitor } = require('../jsParser/parser/Import_listVisitor.js');
+const Import_list = require('../jsParser/parser/Import_listVisitor.js');
 // mo.describe('testing Algorithm_sectionVisitor.js', function () {
 // mo.describe('testing visitAlgorithm_section(ctx)', function () {
 // mo.it('testing initial = true', function () {
@@ -127,8 +133,8 @@ describe('When_equationVisitor', () => {
     const whenEqStub = sinon.stub().returns({ type: 'when_equation_object' });
     const elsewhenStub = sinon.stub().returns({ condition: mockExpr, then: [mockEqn] });
 
-    sinon.replace(require('../jsParser/parser/domain/When_equation'), 'When_equation', whenEqStub);
-    sinon.replace(require('../jsParser/parser/domain/When_elsewhen_equation'), 'When_elsewhen_equation', elsewhenStub);
+    sinon.replace(require('../jsParser/parser/When_equation'), 'When_equation', whenEqStub);
+    sinon.replace(require('../jsParser/parser/When_elsewhen_equation'), 'When_elsewhen_equation', elsewhenStub);
 
     const result = visitor.visitWhen_equation(ctx);
 
@@ -590,8 +596,6 @@ describe('NameVisitor', () => {
 });
 // test/NameVisitor.test.js (const moved to top)
 
-import assert from 'assert';
-
 describe('Rel_opVisitor', function () {
     it('should call visitChildren when visitRel_op is invoked', function () {
         const visitor = new Rel_opVisitor();
@@ -610,3 +614,265 @@ describe('Rel_opVisitor', function () {
     });
 });
 // test/Rel_opVisitor.test.js (no need to move const to top)
+
+describe('PrimaryVisitor', function () {
+    it('should call visitChildren when visitPrimary is invoked', function () {
+        const visitor = new PrimaryVisitor();
+        let called = false;
+        const mockCtx = { text: 'primaryExpr' };
+
+        visitor.visitChildren = function(ctx) {
+            called = true;
+            assert.strictEqual(ctx, mockCtx);
+            return 'visitedPrimary';
+        };
+
+        const result = visitor.visitPrimary(mockCtx);
+        assert.strictEqual(result, 'visitedPrimary');
+        assert.strictEqual(called, true);
+    });
+});
+// test/PrimaryVisitor.test.js (no need to move const to top)
+
+describe('Output_expression_listVisitor', function () {
+    it('should call visitChildren when visitOutput_expression_list is invoked', function () {
+        const visitor = new Output_expression_listVisitor();
+        let called = false;
+        const mockCtx = { text: 'outputList' };
+
+        visitor.visitChildren = function(ctx) {
+            called = true;
+            assert.strictEqual(ctx, mockCtx);
+            return 'visitedOutputList';
+        };
+
+        const result = visitor.visitOutput_expression_list(mockCtx);
+        assert.strictEqual(result, 'visitedOutputList');
+        assert.strictEqual(called, true);
+    });
+});
+// test/Output_expression_listVisitor.test.js (no need to move const to top)
+
+describe('NameVisitor', function () {
+    it('should call visitChildren when visitName is invoked', function () {
+        const visitor = new NameVisitor();
+        let called = false;
+        const mockCtx = { text: 'mockName' };
+
+        visitor.visitChildren = function(ctx) {
+            called = true;
+            assert.strictEqual(ctx, mockCtx);
+            return 'visitedName';
+        };
+
+        const result = visitor.visitName(mockCtx);
+        assert.strictEqual(result, 'visitedName');
+        assert.strictEqual(called, true);
+    });
+});
+// test/NameVisitor.test.js (no need to move const to top)
+
+describe('Named_argumentVisitor', () => {
+  it('should return object with name and value', () => {
+    const ctx = {
+      name: () => ({ getText: () => 'argName' }),
+      expression: () => ({ getText: () => '42' })
+    };
+
+    const visitor = new Named_argumentVisitor();
+    const result = visitor.visitNamed_argument(ctx);
+    assert.deepStrictEqual(result, { name: 'argName', value: '42' });
+  });
+
+  it('should handle missing name or expression', () => {
+    const ctx = {
+      name: () => null,
+      expression: () => null
+    };
+
+    const visitor = new Named_argumentVisitor();
+    const result = visitor.visitNamed_argument(ctx);
+    assert.deepStrictEqual(result, { name: null, value: null });
+  });
+});
+// test/Named_argumentVisitor.test.js (const moved to top)
+
+describe('Named_argumentsVisitor', () => {
+  it('should return array of named arguments', () => {
+    const ctx = {
+      named_argument: () => [
+        { getText: () => 'arg1' },
+        { getText: () => 'arg2' }
+      ]
+    };
+
+    const visitor = new Named_argumentsVisitor();
+    const result = visitor.visitNamed_arguments(ctx);
+    assert.deepStrictEqual(result, ['arg1', 'arg2']);
+  });
+
+  it('should return empty array if no named_argument present', () => {
+    const ctx = {
+      named_argument: () => []
+    };
+
+    const visitor = new Named_argumentsVisitor();
+    const result = visitor.visitNamed_arguments(ctx);
+    assert.deepStrictEqual(result, []);
+  });
+});
+// test/Named_argumentsVisitor.test.js (const moved to top)
+
+describe('ModificationVisitor', () => {
+  it('should return text from class_modification', () => {
+    const ctx = {
+      class_modification: () => ({
+        getText: () => 'modValue'
+      })
+    };
+
+    const visitor = new ModificationVisitor();
+    const result = visitor.visitModification(ctx);
+    assert.strictEqual(result, 'modValue');
+  });
+
+  it('should return null if class_modification is not present', () => {
+    const ctx = {
+      class_modification: () => null
+    };
+
+    const visitor = new ModificationVisitor();
+    const result = visitor.visitModification(ctx);
+    assert.strictEqual(result, null);
+  });
+});
+// test/ModificationVisitor.test.js (const moved to top)
+
+describe('Long_class_specifierVisitor', function () {
+  it('should correctly extract a class name from context', function () {
+    const visitor = new Long_class_specifierVisitor();
+
+    const mockCtx = {
+      Identifier: () => ({ getText: () => 'MyClass' })
+    };
+
+    const result = visitor.visit(mockCtx);
+    assert.strictEqual(result, 'MyClass');
+  });
+
+});
+// test/Long_class_specifierVisitor.test.js (const moved to top)
+
+describe('Logical_termVisitor', function () {
+  it('should return correct AND logic result', function () {
+    const visitor = new Logical_termVisitor();
+
+    const mockCtx = {
+      children: [
+        { accept: () => true },
+        { getText: () => '&&' },
+        { accept: () => false }
+      ]
+    };
+
+    const result = visitor.visit(mockCtx);
+    assert.strictEqual(result, false);
+  });
+});
+// test/Logical_termVisitor.test.js (const moved to top)
+
+describe('Logical_factorVisitor', function () {
+  it('should return true for input context with value "true"', function () {
+    const visitor = new Logical_factorVisitor();
+    const mockCtx = { getText: () => 'true' };
+
+    const result = visitor.visit(mockCtx);
+    assert.strictEqual(result, true);
+  });
+
+  it('should return false for input context with value "false"', function () {
+    const visitor = new Logical_factorVisitor();
+    const mockCtx = { getText: () => 'false' };
+
+    const result = visitor.visit(mockCtx);
+    assert.strictEqual(result, false);
+  });
+});
+// test/Logical_factorVisitor.test.js (const moved to top)
+
+describe('Logical_expressionVisitor', () => {
+  it('should return Logical_expression with logical terms', () => {
+    const ctx = {
+      logical_term: () => ['x', 'y']
+    };
+
+    const fakeResults = ['LT1', 'LT2'];
+    const visitStub = sinon.stub().onCall(0).returns(fakeResults[0]).onCall(1).returns(fakeResults[1]);
+
+    sinon.stub(Logical_termVisitor, 'Logical_termVisitor')
+      .returns({ visitLogical_term: visitStub });
+
+    const stub = sinon.stub(Logical_expression, 'Logical_expression')
+      .callsFake(list => ({ logical_terms: list }));
+
+    const visitor = new Logical_expressionVisitor();
+    const result = visitor.visitLogical_expression(ctx);
+
+    assert.deepStrictEqual(result.logical_terms, fakeResults);
+
+    Logical_termVisitor.Logical_termVisitor.restore();
+    Logical_expression.Logical_expression.restore();
+  });
+
+  it('should return empty Logical_expression if no logical_term exists', () => {
+    const ctx = {
+      logical_term: () => null
+    };
+
+    const stub = sinon.stub(Logical_expression, 'Logical_expression')
+      .callsFake(list => ({ logical_terms: list }));
+
+    const visitor = new Logical_expressionVisitor();
+    const result = visitor.visitLogical_expression(ctx);
+
+    assert.deepStrictEqual(result.logical_terms, []);
+
+    stub.restore();
+  });
+});
+// test/Logical_expressionVisitor.test.js (const moved to top) 
+
+describe('Import_listVisitor', () => {
+  it('should return an Import_list with identifiers', () => {
+    const ctx = {
+      IDENT: () => ['A', 'B', 'C']
+    };
+
+    const stub = sinon.stub(Import_list, 'Import_list')
+      .callsFake(list => ({ identifiers: list }));
+
+    const visitor = new Import_listVisitor();
+    const result = visitor.visitImport_list(ctx);
+
+    assert.deepStrictEqual(result.identifiers, ['A', 'B', 'C']);
+
+    stub.restore();
+  });
+
+  it('should return an empty Import_list if IDENT() is null', () => {
+    const ctx = {
+      IDENT: () => null
+    };
+
+    const stub = sinon.stub(Import_list, 'Import_list')
+      .callsFake(list => ({ identifiers: list }));
+
+    const visitor = new Import_listVisitor();
+    const result = visitor.visitImport_list(ctx);
+
+    assert.deepStrictEqual(result.identifiers, []);
+
+    stub.restore();
+  });
+});
+// test/Import_listVisitor.test.js (const moved to top)
