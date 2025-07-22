@@ -1,4 +1,4 @@
-// The file each test is testing is speficied bellow each test (ex: // test for While_statementVisitor.js)
+// The file each test is testing is speficied below each test (ex: // test for While_statementVisitor.js)
 const as = require('assert')
 const mo = require('mocha')
 const sinon = require('sinon')
@@ -6,9 +6,33 @@ const While_statementVisitorClass = require('../jsParser/parser/While_statementV
 const StatementVisitorClass = require ('../jsParser/parser/StatementVisitor.js').StatementVisitor
 const ExpressionVisitorClass = require ('../jsParser/parser/ExpressionVisitor.js').ExpressionVisitor
 const While_statementClass = require ('../jsParser/domain/While_statement.js').While_statement
+const { When_equationVisitor } = require('../jsParser/parser/When_equationVisitor');// mo.describe('testing Algorithm_sectionVisitor.js', function () {
+const { Type_specifierVisitor } = require('../jsParser/parser/Type_specifierVisitor');
+const Type_specifier = require('../jsParser/parser/domain/Type_specifier');
+const NameVisitor = require('../jsParser/parser/NameVisitor');
+const { When_statementVisitor } = require('../jsParser/parser/When_statementVisitor');
+const { StatementVisitor } = require('../jsParser/parser/StatementVisitor.js'); 
+const { When_statement } = require('../jsParser/parser/domain/When_statement');
+const { When_elsewhen_statement } = require('../jsParser/parser/domain/When_elsewhen_statement');
+const EquationVisitor = require('../jsParser/parser/EquationVisitor');
+const When_equation = require('../jsParser/parser/domain/When_equation').When_equation;
+const When_elsewhen_equation = require('../jsParser/parser/domain/When_elsewhen_equation').When_elsewhen_equation;
+const TermVisitor = require('../jsParser/parser/TermVisitor');
+const Type_prefixVisitor  = require('../jsParser/parser/Type_prefixVisitor');;
+const Term = require('../jsParser/parser/domain/Term');
+const FactorVisitor = require('../jsParser/parser/FactorVisitor');
+const SubscriptVisitor  = require('../SubscriptVisitor');
+const String_commentVisitor = require('../String_commentVisitor');
+const Stored_definitionVisitor  = require('../Stored_definitionVisitor');
+const Simple_expressionVisitor = require('../jsParser/Simple_expressionVisitor');
+const Short_class_specifierVisitor = require('../jsParser/Short_class_specifierVisitor');
+const PrimaryVisitor = require('../PrimaryVisitor');
+const OutputExpressionListVisitor = require('../Output_expression_listVisitor');
+const Rel_opVisitor = require('../Rel_opVisitor');
 // mo.describe('testing Algorithm_sectionVisitor.js', function () {
-//   mo.describe('testing visitAlgorithm_section(ctx)', function () {
-//         mo.it('testing initial = true', function () 
+// mo.describe('testing visitAlgorithm_section(ctx)', function () {
+// mo.it('testing initial = true', function () {
+
 mo.afterEach(() => {
   sinon.restore()
 })
@@ -27,12 +51,6 @@ as.deepEqual(actualOutput.loop_statements, ReferenceOutput.loop_statements, 'exp
   })
 } ) 
 // test for While_statements.js
-
-const { When_statementVisitor } = require('../jsParser/parser/When_statementVisitor');
-const { ExpressionVisitor } = require('../jsParser/parser/ExpressionVisitor');
-const { StatementVisitor } = require('../jsParser/parser/StatementVisitor.js');
-const { When_statement } = require('../jsParser/parser/domain/When_statement');
-const { When_elsewhen_statement } = require('../jsParser/parser/domain/When_elsewhen_statement');
 
 describe('When_statementVisitor', () => {
   let visitor;
@@ -82,12 +100,7 @@ describe('When_statementVisitor', () => {
     stmtSpy.restore();
   });
 });
-// test for When_statementVisitor.js
-
-const { expect } = require('assert');
-const sinon = require('sinon');
-
-const { When_equationVisitor } = require('../jsParser/parser/When_equationVisitor');
+// test for When_statementVisitor.js (const moved to top)
 
 describe('When_equationVisitor', () => {
   let visitor;
@@ -109,11 +122,6 @@ describe('When_equationVisitor', () => {
       }),
     };
 
-    const ExpressionVisitor = require('../jsParser/parser/ExpressionVisitor');
-    const EquationVisitor = require('../jsParser/parser/EquationVisitor');
-    const When_equation = require('../jsParser/parser/domain/When_equation').When_equation;
-    const When_elsewhen_equation = require('../jsParser/parser/domain/When_elsewhen_equation').When_elsewhen_equation;
-
     sinon.stub(ExpressionVisitor.prototype, 'visitExpression').returns(mockExpr);
     sinon.stub(EquationVisitor.prototype, 'visitEquation').returns(mockEqn);
     const whenEqStub = sinon.stub().returns({ type: 'when_equation_object' });
@@ -131,14 +139,7 @@ describe('When_equationVisitor', () => {
     sinon.restore();
   });
 });
-// test for When_equationVisitor.js
-
-const assert = require('assert');
-const sinon = require('sinon');
-
-const { Type_specifierVisitor } = require('../jsParser/parser/Type_specifierVisitor');
-const Type_specifier = require('../jsParser/parser/domain/Type_specifier');
-const NameVisitor = require('../jsParser/parser/NameVisitor');
+// test for When_equationVisitor.js (const moved to top) 
 
 describe('Type_specifierVisitor', () => {
   it('should return Type_specifier with name when name is present', () => {
@@ -149,15 +150,11 @@ describe('Type_specifierVisitor', () => {
       visitName: sinon.stub().withArgs('nameNode').returns(fakeName)
     });
 
-    sinon.stub(Type_specifier, 'Type_specifier').callsFake(name => ({ name }));
-
     const visitor = new Type_specifierVisitor();
     const result = visitor.visitType_specifier(ctx);
 
     assert.strictEqual(result.name, fakeName);
 
-    NameVisitor.NameVisitor.restore();
-    Type_specifier.Type_specifier.restore();
   });
 
   it('should return Type_specifier with null when name is missing', () => {
@@ -173,10 +170,7 @@ describe('Type_specifierVisitor', () => {
     Type_specifier.Type_specifier.restore();
   });
 });
-// test for Type_specifierVisitor.js
-
-const assert = require('assert');
-const { Type_prefixVisitor } = require('../jsParser/parser/Type_prefixVisitor');
+// test for Type_specifierVisitor.js (const moved to top)
 
 describe('Type_prefixVisitor', () => {
   function mockCtx(flags = {}) {
@@ -219,14 +213,7 @@ describe('Type_prefixVisitor', () => {
     assert.strictEqual(result, '');
   });
 });
-// test for Type_prefixVisitor.js
-
-const assert = require('assert');
-const sinon = require('sinon');
-
-const { TermVisitor } = require('../jsParser/parser/TermVisitor');
-const Term = require('../jsParser/parser/domain/Term');
-const FactorVisitor = require('../jsParser/parser/FactorVisitor');
+// test for Type_prefixVisitor.js (no need to move const to top)
 
 describe('TermVisitor', () => {
   it('should extract mul_ops and factors correctly', () => {
@@ -268,10 +255,7 @@ describe('TermVisitor', () => {
     Term.Term.restore();
   });
 });
-// test for TermVisitor.js
-
-const assert = require('assert');
-const { SubscriptVisitor } = require('../SubscriptVisitor');
+// test for TermVisitor.js (const moved to top)
 
 describe('SubscriptVisitor', function () {
   it('should return default Subscript with null expression and false color_op', function () {
@@ -306,10 +290,7 @@ describe('SubscriptVisitor', function () {
     assert.ok('expression' in result);
   });
 });
-// test/SubscriptVisitor.test.js
-
-const assert = require('assert');
-const { String_commentVisitor } = require('../String_commentVisitor');
+// test/SubscriptVisitor.test.js (const moved to top)
 
 describe('String_commentVisitor', function () {
   it('should return empty string if ctx.STRING is missing', function () {
@@ -342,10 +323,7 @@ describe('String_commentVisitor', function () {
     assert.strictEqual(result, '"a"+"b"');
   });
 });
-// test/String_commentVisitor.test.js
-
-const assert = require('assert');
-const { Stored_definitionVisitor } = require('../Stored_definitionVisitor');
+// test/String_commentVisitor.test.js (const moved to top)
 
 describe('Stored_definitionVisitor', function () {
   it('should instantiate correctly', function () {
@@ -363,10 +341,7 @@ describe('Stored_definitionVisitor', function () {
     });
   });
 });
-// test/Stored_definitionVisitor.test.js
-
-const assert = require('assert');
-const { StatementVisitor } = require('../jsParser/StatementVisitor');
+// test/Stored_definitionVisitor.test.js (const moved to top)
 
 describe('StatementVisitor', function () {
   it('should handle assignment statements', function () {
@@ -392,10 +367,7 @@ describe('StatementVisitor', function () {
     assert.strictEqual(result.function_call_statement, null);
   });
 });
-// test/StatementVisitor.test.js
-
-const assert = require('assert');
-const { Simple_expressionVisitor } = require('../jsParser/Simple_expressionVisitor');
+// test/StatementVisitor.test.js (const moved to top)
 
 describe('Simple_expressionVisitor', function () {
   it('should return Simple_expression with one logical expression', function () {
@@ -428,10 +400,7 @@ describe('Simple_expressionVisitor', function () {
     require.cache[require.resolve('../jsParser/Logical_expressionVisitor')] = original;
   });
 });
-// test/Simple_expressionVisitor.test.js
-
-const assert = require('assert');
-const { Simple_expressionVisitor } = require('../jsParser/Simple_expressionVisitor');
+// test/Simple_expressionVisitor.test.js (const moved to top)
 
 describe('Simple_expressionVisitor', function () {
   it('should return Simple_expression with one logical expression', function () {
@@ -462,10 +431,7 @@ describe('Simple_expressionVisitor', function () {
     require.cache[require.resolve('../jsParser/Logical_expressionVisitor')] = original;
   });
 });
-// test/Simple_expressionVisitor.test.js
-
-const assert = require('assert');
-const { Short_class_specifierVisitor } = require('../jsParser/Short_class_specifierVisitor');
+// test/Simple_expressionVisitor.test.js (const moved to top)
 
 describe('Short_class_specifierVisitor', function () {
   it('should correctly visit and return Short_class_specifier object', function () {
@@ -487,10 +453,7 @@ describe('Short_class_specifierVisitor', function () {
     assert.ok(result.value); 
   });
 });
-// test/Short_class_specifierVisitor.test.js
-
-import assert from 'assert';
-import Short_class_definitionVisitor from '../Short_class_definitionVisitor.js';
+// test/Short_class_specifierVisitor.test.js (const moved to top)
 
 describe('Short_class_definitionVisitor', function () {
     it('should call visitChildren when visitShort_class_definition is invoked', function () {
@@ -511,9 +474,6 @@ describe('Short_class_definitionVisitor', function () {
 });
 // test/Short_class_definitionVisitor.test.js
 
-import assert from 'assert';
-import RelationVisitor from '../RelationVisitor.js';
-
 describe('RelationVisitor', function () {
     it('should call visitChildren when visitRelation is invoked', function () {
         const visitor = new RelationVisitor();
@@ -531,54 +491,7 @@ describe('RelationVisitor', function () {
         assert.strictEqual(called, true);
     });
 });
-// test/RelationVisitor.test.js
-
-import assert from 'assert';
-import Rel_opVisitor from '../Rel_opVisitor.js';
-
-describe('Rel_opVisitor', function () {
-    it('should call visitChildren when visitRel_op is invoked', function () {
-        const visitor = new Rel_opVisitor();
-        let called = false;
-        const mockCtx = { text: 'mock' };
-
-        visitor.visitChildren = function(ctx) {
-            called = true;
-            assert.strictEqual(ctx, mockCtx);
-            return 'visitedRelOp';
-        };
-
-        const result = visitor.visitRel_op(mockCtx);
-        assert.strictEqual(result, 'visitedRelOp');
-        assert.strictEqual(called, true);
-    });
-});
-// test/Rel_opVisitor.test.jsf
-
-import assert from 'assert';
-import Rel_opVisitor from '../Rel_opVisitor.js';
-
-describe('Rel_opVisitor', function () {
-    it('should call visitChildren when visitRel_op is invoked', function () {
-        const visitor = new Rel_opVisitor();
-        let called = false;
-        const mockCtx = { text: 'mock' };
-
-        visitor.visitChildren = function(ctx) {
-            called = true;
-            assert.strictEqual(ctx, mockCtx);
-            return 'visitedRelOp';
-        };
-
-        const result = visitor.visitRel_op(mockCtx);
-        assert.strictEqual(result, 'visitedRelOp');
-        assert.strictEqual(called, true);
-    });
-});
-// test/Rel_opVisitor.test.js
-
-const assert = require('assert');
-const PrimaryVisitor = require('../PrimaryVisitor');
+// test/RelationVisitor.test.js (no need to move const to top)
 
 describe('PrimaryVisitor', () => {
   it('should return text from literal', () => {
@@ -614,11 +527,8 @@ describe('PrimaryVisitor', () => {
     assert.strictEqual(result, null);
   });
 });
-// test/PrimaryVisitor.test.js
-
-const assert = require('assert');
-const OutputExpressionListVisitor = require('../Output_expression_listVisitor');
-
+// test/PrimaryVisitor.test.js (const moved to top)
+ 
 describe('Output_expression_listVisitor', () => {
   it('should return array of expression texts', () => {
     const ctx = {
@@ -653,14 +563,11 @@ describe('Output_expression_listVisitor', () => {
     assert.deepStrictEqual(result, []);
   });
 });
-// test/Output_expression_listVisitor.test.js
-
-const assert = require('assert');
-const NameVisitor = require('../NameVisitor');
+// test/Output_expression_listVisitor.test.js (const moved to top)
 
 describe('NameVisitor', () => {
   it('should return text from Identifier', () => {
-    const ctx = {
+    const ctx = { 
       Identifier: () => ({
         getText: () => 'myVar'
       })
@@ -681,4 +588,25 @@ describe('NameVisitor', () => {
     assert.strictEqual(result, null);
   });
 });
-// test/NameVisitor.test.js
+// test/NameVisitor.test.js (const moved to top)
+
+import assert from 'assert';
+
+describe('Rel_opVisitor', function () {
+    it('should call visitChildren when visitRel_op is invoked', function () {
+        const visitor = new Rel_opVisitor();
+        let called = false;
+        const mockCtx = { text: 'mock' };
+
+        visitor.visitChildren = function(ctx) {
+            called = true;
+            assert.strictEqual(ctx, mockCtx);
+            return 'visitedRelOp';
+        };
+
+        const result = visitor.visitRel_op(mockCtx);
+        assert.strictEqual(result, 'visitedRelOp');
+        assert.strictEqual(called, true);
+    });
+});
+// test/Rel_opVisitor.test.js (no need to move const to top)
